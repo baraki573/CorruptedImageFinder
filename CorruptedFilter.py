@@ -19,9 +19,11 @@ def process():
     for filename in listdir(source_input):
         if filename.endswith(("jpg", "jpeg", "bmp", "png")):
             try: 
-                img = (source_input+'\\'+filename)
-                read = cv2.imread(source_input+'\\'+filename)
+                img = (filename)
+                read = cv2.imread(img)
                 cv2.imshow("IMAGE", read)
+                cv2.waitKey(1)
+                cv2.destroyAllWindows()
             except cv2.error as e:
                 if e.err == "!_src.empty()":
                     global counter
