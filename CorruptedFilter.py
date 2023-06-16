@@ -1,7 +1,6 @@
 from os import listdir
 import os
-#import cv2
-from PIL import Image
+from skimage import io
 import shutil
 from collections import Counter
 import glob
@@ -14,37 +13,58 @@ source_dir2 = source_dir2.replace(']', 'o]o')
 source_dir2 = source_dir2.replace('o[o', '[[]')
 source_dir2 = source_dir2.replace('o]o', '[]]')
 source_dirclean = source_dir2.replace('#', '[#]')
-output = "E:\XXXXX\XXXXXXXX\XXXXXXXX" + '\\'
+output = "AAAA"
 counter = 0
 
 def nooutput():
-     if os.path.exists(output):
-        process()
-     else:
-        os.mkdir(output)
-        process()
+	if os.path.exists(output):
+		process()
+	else:
+		os.mkdir(output)
+		process()
         
 def process():
-    for filename in glob.iglob(source_dirclean + '/**/*.*', recursive=True):
-        if filename.endswith(("jpg", "JPG", "jpeg", "JPEG", "bmp", "BMP", "png", "PNG")):
-            #breakpoint()
-            try:
-                img = (filename)
-                imge = Image.open(filename)
-                imge.verify()
-                #read = cv2.imread(img)
-                #cv2.imshow("IMAGE", read)
-                #cv2.waitKey(50)
-                #cv2.destroyAllWindows()
-            except (IOError, SyntaxError) as e:
-            #except cv2.error as e:
-                #if e.err == "!_src.empty()":
-                    global counter
-                    counter+=1
-                    print('ERROR ON FILE: ' + img + '  taking it out')
-                    shutil.move(img, output)
+	for filename in glob.iglob(source_dirclean + '/**/*.*', recursive=True):
+		if filename.endswith(("jpg", "JPG", "jpeg", "JPEG", "bmp", "BMP", "png", "PNG")):
+			#breakpoint()
+			try: 
+				img = (filename)
+				imgf = io.imread(img)
+			except:
+				#if e.err == "!_src.empty()":
+				global counter
+				counter+=1
+				print('ERROR ON FILE: ' + img + '  taking it out')
+				try:
+					shutil.move(img, output)
+				except:
+					print("File already exists")
+				
+def copy_backup():
+	global output
+	in_dir = output
+	master = "BBBB"
+	output = "CCCC"
+	sort_year_month = True
+	global counter
+	counter = 0
+	if not os.path.exists(output):
+		os.mkdir(output)
+	for corrupted in listdir(in_dir):
+		if os.path.exists(f"{output}\\{corrupted}"):
+			continue
+		master_path = f"{master}\\{corrupted}"
+		if sort_year_month:
+			year = corrupted[0:4]
+			month = corrupted[4:6]
+			master_path = f"{master}\\{year}\\{month}\\{corrupted}"
+		shutil.copy(master_path, f"{output}\\{corrupted}")
+		counter+=1
 
 nooutput()
 
 print('CORRUPTED IMAGES = ', counter)
-input("Press a key to close...")
+a = input("Press \"Y\" to copy the backups, other keys will exit: ")
+if a.lower()=="y":
+	copy_backup()
+	print(f"{counter} files successfully copied!")
